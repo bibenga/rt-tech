@@ -1,0 +1,192 @@
+openapi: 3.0.0
+info:
+  title: Thesis Task Api
+  version: v1
+paths:
+  /api/v1/persons/:
+    get:
+      description: ""
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: string
+        - name: family_name
+          in: query
+          description: Поиск по фамилии
+          required: false
+          schema:
+            type: string
+        - name: department_id
+          in: query
+          description: Поиск по ID департамента
+          required: false
+          schema:
+            type: string
+            format: UUID
+        
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: Количество объектов
+                    example: 1000
+                  previous:
+                    type: integer
+                    description: Номер предыдущей страницы
+                    example: 1
+                  next:
+                    type: integer
+                    description: Номер следующей страницы
+                    example: 2
+                  result:
+                    $ref: "#/components/schemas/Person"
+    
+    post:
+      description: "добавление сотрудника"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - fullname
+              - position
+              properties:
+                fullname:
+                  type: string
+                  description: ФИО
+                  example: Иванов Иван Иванович
+                salary:
+                  type: number
+                  format: float
+                  description: Оклад
+                  example: 170000
+                age:
+                  type: number
+                  format: integer
+                  description: Возраст
+                  example: 30
+                position:
+                  type: string
+                  description: Должность
+                  example: developer
+                department:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+        
+      responses:
+        "201":
+          description: "успешно создан"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        "400":
+          description: "некорректные входные данные"
+
+  
+  /api/v1/persons/{id}:
+    delete:
+      description: "удаление сотрудника"
+      parameters:
+        - in: path
+          name: id  
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID сотрудника
+        
+      responses:
+        "204":
+          description: "успешное удаление"
+        "404":
+          description: "объект не найден"
+  
+  /api/v1/departments/:
+    get:
+      description: "Список департаментов"
+        
+      responses:
+        "200":
+          description: "Успешно загружен"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+                    
+components:
+  schemas:
+    Person:
+      type: object
+      required:
+        - id
+        - fullname
+        - position
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID 
+        fullname:
+          type: string
+          description: ФИО
+          example: Иванов Иван Иванович
+        salary:
+          type: number
+          format: float
+          description: Оклад
+          example: 170000
+        age:
+          type: number
+          format: integer
+          description: Возраст
+          example: 30
+        position:
+          type: string
+          description: Должность
+          example: developer
+        department:
+          type: array
+          description: Департамент
+          items:
+            type: string
+            format: uuid
+            description: ID
+    Department:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID 
+        name:
+          type: string
+          description: Название
+          example: Проектирования и разработки ПО
+        head:
+          type: string
+          format: uuid
+          description: Руководитель 
+        total_persons:
+          type: number
+          format: integer
+          description: Количество сотрудников
+          example: 2
+        total_salary:
+          type: number
+          format: float
+          description: Суммарный оклад
+          example: 1000000
